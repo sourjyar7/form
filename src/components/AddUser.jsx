@@ -9,7 +9,7 @@ export const AddUser = () => {
 
     const submitHandler = async (event) =>{
         event.preventDefault();
-        const url='http://localhost:5000/addUser';
+        const url='https://test-server-mern.herokuapp.com/addUser';
         let user = {
             name,
             age,

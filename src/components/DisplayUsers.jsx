@@ -4,7 +4,7 @@ import './displayUsers.css'
 
 export const DisplayUsers = () => {
     const [users ,setUsers] = React.useState([]);  
-    const url ='http://localhost:5000/getUsers'
+    const url ='https://test-server-mern.herokuapp.com/getUsers'
     React.useEffect(()=>{
         axios.get(url).then((resp)=>{
             const data = resp.data;
