@@ -1,6 +1,8 @@
 import React from 'react'
 import axios from 'axios'
 import './displayUsers.css'
+import { ColFilter } from './ColFilter'
+import { useTable ,useFilters,usePagination } from 'react-table'
 
 export const DisplayUsers = () => {
     const [users ,setUsers] = React.useState([]);  
@@ -12,58 +14,108 @@ export const DisplayUsers = () => {
             setUsers(data);
         
         })},[]);
-    
-    const handleChange = (event) =>{
-        hideRow();
-        const filter = event.target.value.toUpperCase();
-        const newUsers = users.slice();
-        newUsers.map((user)=>{
-            if(user[event.target.id].toUpperCase().indexOf(filter) == -1)
-               user.isHidden = true;
-        })
-        setUsers(newUsers)
-    }    
-
-    const hideRow = ()=>{
-        const newUsers = users.slice();
-        newUsers.map((user)=>user.isHidden = false);
-        setUsers(newUsers);
-        
-    }
-    
+    const data = React.useMemo(
+   () => users,
+   [users]
+ )
+    const columns = React.useMemo(
+   () => [
+     {
+       Header: 'Name',
+       accessor: 'name', // accessor is the "key" in the data
+       Filter: ColFilter
+     },
+     {
+       Header: 'Age',
+       accessor: 'age',
+       Filter: ColFilter
+     },
+     {
+       Header: 'Email',
+       accessor: 'email',
+       Filter: ColFilter
+     },
+     {
+       Header: 'Gender',
+       accessor: 'gender',
+       Filter: ColFilter
+     }
+   ],
+   [users]
+ )
+ const tableInstance = useTable({ columns, data },useFilters,usePagination);
+ const {
+   getTableProps,
+   getTableBodyProps,
+   headerGroups,
+   page,
+   state,
+   nextPage,
+   previousPage,
+   canPreviousPage,
+   canNextPage,
+   setPageSize,
+   prepareRow,
+ } = tableInstance;
+    const { pageSize } = state
     return (
-        <div>
-            <table >
-            <tbody>    
-            <tr>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Email</th>
-                <th>Gender</th>
-            </tr>
-            <tr>
-              <td><input type="text" id="name" onChange={(e)=>handleChange(e)}></input></td>
-              <td><input type="text" id="age" onChange={(e)=>handleChange(e)}></input></td>
-              <td><input type="email" id="email" onChange={(e)=>handleChange(e)}></input></td>
-              <td><input type="text" id="gender" onChange={(e)=>handleChange(e)}></input></td>
-            </tr>
-            {users.map((user,key)=>{
+        <>
+        <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
+       <thead>
            
-           return (!user.isHidden)?(
-            <tr key={key}>
-              <td>{user.name}</td>
-              <td>{user.age}</td>
-              <td>{user.email}</td>
-              <td>{user.gender}</td>
-            </tr>
-            ):null
-            
-           }
-            )}
-            </tbody>
-            </table>
-
-        </div>
+         {headerGroups.map(headerGroup => (
+           <tr {...headerGroup.getHeaderGroupProps()}>
+             {headerGroup.headers.map(column => (
+               <th
+                 {...column.getHeaderProps()}
+                 style={{
+                   borderBottom: 'solid 3px red',
+                   background: 'aliceblue',
+                   color: 'black',
+                   fontWeight: 'bold',
+                 }}
+               >
+                 {column.render('Header')}
+                  <div>{column.canFilter ? column.render('Filter') : null}</div>
+               </th>
+             ))}
+           </tr>
+         ))}
+       </thead>
+       <tbody {...getTableBodyProps()}>
+         {page.map(row => {
+           prepareRow(row)
+           return (
+             <tr {...row.getRowProps()}>
+               {row.cells.map(cell => {
+                 return (
+                   <td
+                     {...cell.getCellProps()}
+                     style={{
+                       padding: '10px',
+                       border: 'solid 1px gray',
+                       background: 'papayawhip',
+                     }}
+                   >
+                     {cell.render('Cell')}
+                   </td>
+                 )
+               })}
+             </tr>
+           )
+         })}
+       </tbody>
+     </table>
+     <div>
+         <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          Previous
+        </button>
+        <button onClick={() => nextPage()} disabled={!canNextPage} >
+          Next
+        </button>
+       Page Size: <input type="number" onChange={(e)=>setPageSize(e.target.value)}></input>
+     </div>
+     </>
     )
 }
 
