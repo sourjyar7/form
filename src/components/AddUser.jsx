@@ -18,7 +18,7 @@ export const AddUser = () => {
         };
         
         const resp = await axios.post(url,user);
-        alert(resp.data);
+        alert(resp.data+" Refresh to see changes....");
     }
    
     return (
